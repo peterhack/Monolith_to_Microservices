@@ -1,0 +1,87 @@
+kind: Template
+apiVersion: v1
+metadata:
+  annotations:
+    description: ticketmonster UI Version 1 template
+  labels:
+    app: ticketmonster-ui-v1
+  name: ticketmonster-ui-v1
+  template: ticketmonster-ui-v1
+objects:
+- kind: DeploymentConfig
+  apiVersion: apps.openshift.io/v1
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    labels:
+      app: ticketmonster-ui-v1
+    name: ticketmonster-ui-v1
+  spec:
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      app: ticketmonster-ui-v1
+      deploymentconfig: ticketmonster-ui-v1
+    strategy:
+      activeDeadlineSeconds: 21600
+      resources: {}
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 25%
+        maxUnavailable: 25%
+        timeoutSeconds: 600
+        updatePeriodSeconds: 1
+      type: Rolling
+    template:
+      metadata:
+        annotations:
+          openshift.io/generated-by: OpenShiftNewApp
+        creationTimestamp: null
+        labels:
+          app: ticketmonster-ui-v1
+          deploymentconfig: ticketmonster-ui-v1
+      spec:
+        containers:
+          - env:
+              - name: BACKENDURL
+                value: ***ENTER YOUR BACKEND URL HERE***
+            image: >-
+              dynatraceacm/ticketmonster-ui-v1
+            imagePullPolicy: Always
+            name: ticketmonster-ui-v1
+            ports:
+              - containerPort: 8080
+                protocol: TCP
+              - containerPort: 8443
+                protocol: TCP
+            resources: {}
+            terminationMessagePath: /dev/termination-log
+            terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+    test: false
+  status:
+- kind: Service
+  apiVersion: v1
+  metadata:
+    annotations:
+    labels:
+      app: ticketmonster-ui-v1
+    name: ticketmonster-ui-v1
+  spec:
+    clusterIP: 
+    ports:
+      - name: 8080-tcp
+        port: 8080
+        protocol: TCP
+        targetPort: 8080
+    selector:
+      app: ticketmonster-ui-v1
+      deploymentconfig: ticketmonster-ui-v1
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
