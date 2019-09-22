@@ -1,0 +1,87 @@
+kind: Template
+apiVersion: v1
+metadata:
+  annotations:
+    description: ticketmonster-monolith template
+  labels:
+    app: ticketmonster-monolith
+  name: ticketmonster-monolith
+  template: ticketmonster-monolith
+objects:
+- kind: DeploymentConfig
+  apiVersion: apps.openshift.io/v1
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    generation: 2
+    labels:
+      app: ticketmonster-monolith
+    name: ticketmonster-monolith
+  spec:
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      app: ticketmonster-monolith
+      deploymentconfig: ticketmonster-monolith
+    strategy:
+      activeDeadlineSeconds: 21600
+      resources: {}
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 25%
+        maxUnavailable: 25%
+        timeoutSeconds: 600
+        updatePeriodSeconds: 1
+      type: Rolling
+    template:
+      metadata:
+        annotations:
+          openshift.io/generated-by: OpenShiftNewApp
+        creationTimestamp: null
+        labels:
+          app: ticketmonster-monolith
+          deploymentconfig: ticketmonster-monolith
+      spec:
+        containers:
+          - env:
+              - name: MYSQL_SERVICE_HOST
+                value: ticketmonster-db
+              - name: MYSQL_SERVICE_PORT
+                value: '3306'
+            image: >-
+              dynatraceacm/ticketmonster-monolith
+            imagePullPolicy: Always
+            name: ticketmonster-monolith
+            ports:
+              - containerPort: 8080
+                protocol: TCP
+            resources: {}
+            terminationMessagePath: /dev/termination-log
+            terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+    test: false
+- kind: Service
+  apiVersion: v1
+  metadata:
+    annotations:
+    labels:
+      app: ticketmonster-monolith
+    name: ticketmonster-monolith
+  spec:
+    clusterIP: 
+    ports:
+      - name: 8080-tcp
+        port: 8080
+        protocol: TCP
+        targetPort: 8080
+    selector:
+      app: ticketmonster-monolith
+      deploymentconfig: ticketmonster-monolith
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
