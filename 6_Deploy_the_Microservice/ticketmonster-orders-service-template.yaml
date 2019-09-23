@@ -1,0 +1,96 @@
+kind: Template
+apiVersion: v1
+metadata:
+  annotations:
+    description: ticketmonster-orders-service template
+  labels:
+    app: ticketmonster-orders-service
+  name: ticketmonster-orders-service
+  template: ticketmonster-orders-service
+objects:
+- kind: DeploymentConfig
+  apiVersion: apps.openshift.io/v1
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    labels:
+      app: ticketmonster-orders-service
+    name: ticketmonster-orders-service
+  spec:
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      app: ticketmonster-orders-service
+      deploymentconfig: ticketmonster-orders-service
+    strategy:
+      activeDeadlineSeconds: 21600
+      resources: {}
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 25%
+        maxUnavailable: 25%
+        timeoutSeconds: 600
+        updatePeriodSeconds: 1
+      type: Rolling
+    template:
+      metadata:
+        annotations:
+          openshift.io/generated-by: OpenShiftNewApp
+        creationTimestamp: null
+        labels:
+          app: ticketmonster-orders-service
+          deploymentconfig: ticketmonster-orders-service
+      spec:
+        containers:
+          - image: >-
+              dynatraceacm/ticketmonster-orders-service
+            imagePullPolicy: Always
+            name: ticketmonster-orders-service
+            ports:
+              - containerPort: 8080
+                protocol: TCP
+              - containerPort: 8778
+                protocol: TCP
+              - containerPort: 9779
+                protocol: TCP
+            resources: {}
+            terminationMessagePath: /dev/termination-log
+            terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+    test: false
+    triggers:
+  status:
+- kind: Service
+  apiVersion: v1
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    labels:
+      app: ticketmonster-orders-service
+    name: ticketmonster-orders-service
+  spec:
+    clusterIP: 
+    ports:
+      - name: 8080-tcp
+        port: 8080
+        protocol: TCP
+        targetPort: 8080
+      - name: 8778-tcp
+        port: 8778
+        protocol: TCP
+        targetPort: 8778
+      - name: 9779-tcp
+        port: 9779
+        protocol: TCP
+        targetPort: 9779
+    selector:
+      app: ticketmonster-orders-service
+      deploymentconfig: ticketmonster-orders-service
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
