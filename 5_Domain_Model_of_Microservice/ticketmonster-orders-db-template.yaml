@@ -1,0 +1,103 @@
+kind: Template
+apiVersion: v1
+metadata:
+  annotations:
+    description: orders-db template
+  labels:
+    app: orders-db
+  name: orders-db
+  template: orders-db
+objects:
+- kind: DeploymentConfig
+  apiVersion: apps.openshift.io/v1
+  metadata:
+    annotations:
+    labels:
+      app: orders-db
+    name: orders-db
+  spec:
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      app: orders-db
+      deploymentconfig: orders-db
+    strategy:
+      activeDeadlineSeconds: 21600
+      resources: {}
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 25%
+        maxUnavailable: 25%
+        timeoutSeconds: 600
+        updatePeriodSeconds: 1
+      type: Rolling
+    template:
+      metadata:
+        annotations:
+        creationTimestamp: null
+        labels:
+          app: orders-db
+          deploymentconfig: orders-db
+      spec:
+        containers:
+          - env:
+              - name: MYSQL_DATABASE
+                value: orders
+              - name: MYSQL_PASSWORD
+                value: monster
+              - name: MYSQL_USER
+                value: ticket
+            image: >-
+              mysql:5.5
+            imagePullPolicy: IfNotPresent
+            name: orders-db
+            ports:
+              - containerPort: 3306
+                protocol: TCP
+            resources: {}
+            terminationMessagePath: /dev/termination-log
+            terminationMessagePolicy: File
+            volumeMounts:
+              - mountPath: /var/lib/mysql/data
+                name: orders-db-volume-1
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+        volumes:
+          - emptyDir: {}
+            name: orders-db-volume-1
+    test: false
+    triggers:
+      - type: ConfigChange
+      - imageChangeParams:
+          automatic: true
+          containerNames:
+            - orders-db
+          from:
+            kind: ImageStreamTag
+            name: 'mysql:5.5'
+            namespace: openshift
+        type: ImageChange
+- kind: Service
+  apiVersion: v1
+  metadata:
+    name: orders-db
+    labels:
+      app: orders-db
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+  spec:
+    ports:
+      - name: 3306-tcp
+        protocol: TCP
+        port: 3306
+        targetPort: 3306
+    selector:
+      app: orders-db
+      deploymentconfig: orders-db
+    type: ClusterIP
+    sessionAffinity: None
+  status:
+    loadBalancer: {}
